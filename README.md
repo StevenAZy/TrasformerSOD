@@ -1,60 +1,46 @@
-## Introduction
-This project is the open source code corresponding to all experiments in the paper "Generative Transformer for Accurate and Reliable Salient Object Detection". Chinese version is at [简体中文](README_CN.md)
+## 简介
+本项目是论文《Generative Transformer for Accurate and Reliable Salient Object Detection》中所有实验对应的开源代码。
 
-##  Configuration
-All experiments are done on a 3090 graphics card, the pytorch version used is 1.9.1, and the timm version is 0.4.5. 
+## 配置
+所有实验在一块3090显卡上完成，所使用的pytorch版本为1.9.1，timm版本为0.4.5，运行代码前请按装所需要的库。
+```
+pip install -r requirement.txt
+```
 
-At the same time, you need to manually download the [pre-trained model](https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_base_patch4_window12_384.pth) of the swin transformer backbone ，and placed under the ````model```` folder.
-## Experiment 
-### Dataset
-All datasets we use are uploaded in [], you can download and modify the dataset path and the hostname of the corresponding machine in ```path_config.py``` at the same time. How to get hostname: 
+同时，需要手动下载swin transformer backbone的[模型](https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_base_patch4_window12_384.pth)，并放置在```model```路径下
+## 实验
+### 数据集
+我们使用的所有数据集均上传在[]中，可以将下载并同时修改```path_config.py```中数据集路径以及对应机器的hostname。获取hostname的方式：
 ```
 import socket
 hostname = socket.getfqdn(socket.gethostname(  ))
 print(hostname)
 ```
-### Config
-```config.py``` can configure the experimental configuration, hyperparameters, etc. corresponding to all experiments. The default parameters in the current ``config.py`` are the final parameters corresponding to all experiments in this article. At the same time, users can implement the combination of different tasks, models, and parameters by mounting the corresponding args parameters on the command line, or directly modifying the corresponding content in ```config.py```. The meaning of the main parameters in args is expressed as follows: 
-* **task**：training task
-* **backbone**：The backbone model used, you can choose swin transformer, resnet50 and vit
-* **neck**：Implement the channel reduce of the backbone, which can be implemented through the simple conv or rcab module. The simple conv is used uniformly in this article. 
-* **decoder**：The implemented decoder, the 'cat' decoder is used uniformly in this article, that is, the features of different scales are simply concat and then the output of the saliency map is realized 
-* **fusion**：Several different ways of using depth for RGBD-SOD tasks 
-* **uncer_method**：Different uncertainty models, where basic is modeled without uncertainty 
-* **log_info**：Indicates the name that this experiment wants to name, the default is REMOVE 
+### config
+```config.py```中可以配置所有实验对应的实验配置，超参数等。当前```config.py```中的默认参数即为本文中所有实验对应的最终参数。与此同时，使用者可以通过在命令行中挂载相应的args参数，或者直接在```config.py```修改对应的内容的方式，实现不同任务，模型，参数的组合。args中主要参数的含义表示如下：
+* **task**：训练的任务
+* **backbone**：使用的backbone模型，可选择swin transformer，resnet50以及vit
+* **neck**：实现backbone的channel reduce，可通过simple conv或者rcab模块实现，本文中统一使用的是simple conv
+* **decoder**：实现的decoder，本文中统一使用的是'cat'decoder，即将不同尺度的特征简单concat然后实现saliency map的输出
+* **fusion**：几种不同的用于RGBD-SOD任务中depth的使用方式
+* **uncer_method**：不同的uncertainty模型，其中basic为不使用uncertainty建模
+* **log_info**：表示本次实验希望命名的名称，默认为REMOVE
 
-### Demo
-We implement a simple demo for generating an RGB input saliency map and visualizing the intermediate features of the network. where ```[ckpt_path]``` is the pretrained model you want to test. 
+### demo
+我们实现了简单的demo用于实现一个RGB输入的saliency map的生成以及网络中间特征的可视化。其中```[ckpt_path]```为想要测试的预训练模型。
 ```
 python demo.py --ckpt [ckpt_path]
 ```
-![alt feater_vis](assert/assert.png)
-### Training
-By running ```python train.py```, the default configuration can be trained according to the configuration information in the current ```config.py```.
 
-If you need to train other settings, you can modify the corresponding configuration options in ``config.py``. For example:
+### 训练
+通过运行```python train.py```即可根据当前```config.py```中的配置信息，进行默认配置的训练。
+
+若需要训练其他的设置，可在```config.py```中修改对应的配置选项。例如：
 
 ```python train.py --task SOD --uncer_method ganabp```
 
-The above command means to train a SOD task model that uses IGAN as the uncertainty model and swin transformer as the backbone.
+表示训练一个使用IGAN为uncertainty模型，以swin transformer为backbone的SOD任务模型。
 
-### Testing
-With the configuration file set up, run ```python test.py --ckpt [ckpt_path]``` directly to output the saliency map and evaluate the corresponding MAE.
-### Saliency map
-For ease of comparison, we provide the saliency map output by the model under various experimental settings, which can be downloaded from this [link] 。
-## BIB
-If you think our code is helpful for your research, please cite:
-```
-@article{mao2021transformer,
-  title={Transformer transforms salient object detection and camouflaged object detection},
-  author={Mao, Yuxin and Zhang, Jing and Wan, Zhexiong and Dai, Yuchao and Li, Aixuan and Lv, Yunqiu and Tian, Xinyu and Fan, Deng-Ping and Barnes, Nick},
-  journal={arXiv preprint arXiv:2104.10127},
-  year={2021}
-}
-```
-## Concat
-If you think there is a problem to discuss, please contact me via issue on github or my email: maoyuxin@mail.nwpu.edu.cn.
-
-At the same time, we hope that our framework can include more transformer-based work for SOD tasks, so please stay tuned for our updates. Pulling requests are also welcome!
-
+### 测试
+在设置好配置文件的情况下，直接运行```python test.py --ckpt [ckpt_path]```即可实现saliency map的输出以及对应的MAE的评估。
 
